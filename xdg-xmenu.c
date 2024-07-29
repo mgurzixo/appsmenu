@@ -681,7 +681,7 @@ void split_to_list(List *list, const char *env_string, char *sep)
 	free(buffer);
 }
 
-int main(int argc, char *argv[])
+int xdgmenu(int argc, char *argv[])
 {
 	int opt;
 

@@ -1,21 +1,36 @@
 SRC=xdg-xmenu.c
-BIN=xdg-xmenu
+BIN=xapps
 TESTS=$(wildcard tests/test_*)
+
+CFLAGS= -g
+LDFLAGS=${CFLAGS}
 
 PREFIX=/usr/local
 
 all: ${BIN}
 
 ${BIN}: ${SRC}
-	${CC} -o ${BIN} ${SRC} -linih
+	${CC} ${CFLAGS} -o ${BIN} ${SRC} -linih
+
+xapps.o: xapps.c
+	${CC} ${CFLAGS} `pkg-config --cflags gtk+-3.0` -c xapps.c
+
+xdg-xmenu.o: xdg-xmenu.c
+	${CC} ${CFLAGS} -c xdg-xmenu.c
+
+xapps: xapps.o xdg-xmenu.o
+	${CC} ${LDFLAGS} -o xapps xapps.o xdg-xmenu.o `pkg-config --libs gtk+-3.0`  -linih
 
 install:
 	install -D -m 755 ${BIN} ${DESTDIR}${PREFIX}/bin/${BIN}
 	install -D -m 644 ${BIN}.1 ${DESTDIR}${PREFIX}/share/man/man1/${BIN}.1
+	install -D -m 755 ${BIN} ${DESTDIR}${PREFIX}/bin/xapps
+
 
 uninstall:
 	rm -f ${DESTDIR}${PREFIX}/bin/${BIN}
 	rm -f ${DESTDIR}${PREFIX}/share/man/man1/${BIN}.1
+	rm -f ${DESTDIR}${PREFIX}/bin/xapps
 
 profile:
 	${CC} -DDEBUG -Wall -o ${BIN}-prof ${SRC} -linih -g -lprofiler
@@ -24,7 +39,7 @@ profile:
 	rm -f ${BIN}-prof
 
 clean:
-	rm -f ${BIN}
+	rm -f ${BIN} apps.o xdg-xmenu.o
 
 test: ${TESTS}
 
